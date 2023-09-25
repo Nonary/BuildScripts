@@ -24,7 +24,8 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEANsbtfMX/NbWJJILTCgMAsc+hR7fgFo3eL9Cfz5hoD
 
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHuWx+Oa7g6J0L0mx16kI3ZDVs515zfeHjR4pMFUvwjK Shortcuts on iPad (2)
 
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5PU+282iAazrIT9u7MT1RUv8dlWAafO6GNxXeNcPWp Mac
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5PU+282iAazrIT9u7MT1RUv8dlWAafO6GNxXeNcPWp Terminus on iPad
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICCFx28Lr3b6dwv+iLC/96jvKJKqsC4xyCWo1oe6jXVT Macintosh
 "@
 Add-Content -Force -Path $env:ProgramData\ssh\administrators_authorized_keys -Value $publicKeys;
 & icacls.exe "$env:ProgramData\ssh\administrators_authorized_keys" /inheritance:r /grant "Administrators:F" /grant "SYSTEM:F"
@@ -43,7 +44,7 @@ $SSHDConfigPath = 'C:\ProgramData\ssh\sshd_config'
 if (Test-Path $SSHDConfigPath) {
     
     # Take a backup of the existing config file
-    Copy-Item $SSHDConfigPath -Destination "$SSHDConfigPath.bak"
+    Copy-Item $SSHDConfigPath -Destination "$SSHDConfigPath.bak" -Force
     
     # Change the port number to user defined port in the sshd_config file
     (Get-Content $SSHDConfigPath) | 
