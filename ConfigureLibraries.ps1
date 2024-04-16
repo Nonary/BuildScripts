@@ -10,7 +10,7 @@ Add-Type -TypeDefinition @"
 "@
 
 # Define the new base directory
-$NewBaseDir = "E:\"
+$NewBaseDir = "D:\"
 
 # Map of library folders to their respective GUIDs
 $LibraryFolders = @{

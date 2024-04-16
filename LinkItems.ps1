@@ -7,7 +7,8 @@ $paths = @(
     "C:\Program Files\Sunshine\config",
     "C:\Users\Chase\AppData\Local\Sunshine Playnite App Export",
     "C:\Users\Chase\AppData\Roaming\awakened-poe-trade",
-    "C:\Program Files (x86)\Steam\userdata\93705779\config"
+    "C:\Games",
+    "C:\Program Files (x86)\Steam"
     # Add more paths if needed
 )
 
@@ -34,7 +35,7 @@ function Copy-FilesWithPermissions($source, $destination) {
 
 # Iterate through the paths
 foreach ($path in $paths) {
-    $destination = Join-Path -ChildPath $path.Replace('C:\', '') -Path "E:\Links"
+    $destination = Join-Path -ChildPath $path.Replace('C:\', '') -Path "D:\Links"
     $sourceExists = Test-Path $path
     $destinationExists = Test-Path $destination
 
@@ -46,8 +47,7 @@ foreach ($path in $paths) {
     }
 
     if ($sourceExists -and -not $destinationExists) {
-        Copy-FilesWithPermissions -source $path -destination $destination
-        # Copy-Item -Path $path -Destination $destination -Recurse -Force
+        Copy-Item -Path $path -Destination $destination -Recurse -Force -ErrorAction Stop
 
 
         # Remove the existing path recursively

@@ -1,5 +1,10 @@
 param($port)
 
+if($null -eq $port) {
+    Write-Host "You must specify a port number!"
+    return
+}
+
 # Install the OpenSSH Client
 Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
@@ -14,13 +19,13 @@ Set-Service -Name sshd -StartupType 'Automatic'
 
 
 #Set default shell to PowerShell
-New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\PowerShell\7\pwsh.exe" -PropertyType String -Force
 
 
 
 # I don't care, these are public keys and by design can be exposed publically without much risk
 $publicKeys = @"
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEANsbtfMX/NbWJJILTCgMAsc+hR7fgFo3eL9Cfz5hoD Shortcuts on DeltaE (2)
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC1NXygJ4nSga//IAa8sF5S3lzu70eAWK6ze/PU9JeEx Shortcuts on DeltaE (2)
 
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHuWx+Oa7g6J0L0mx16kI3ZDVs515zfeHjR4pMFUvwjK Shortcuts on iPad (2)
 
