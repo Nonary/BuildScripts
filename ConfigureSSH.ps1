@@ -31,6 +31,8 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHuWx+Oa7g6J0L0mx16kI3ZDVs515zfeHjR4pMFUvwjK
 
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5PU+282iAazrIT9u7MT1RUv8dlWAafO6GNxXeNcPWp Terminus on iPad
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICCFx28Lr3b6dwv+iLC/96jvKJKqsC4xyCWo1oe6jXVT Macintosh
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID3noGSVzUmcp71+aH8MBwhGMlJqAJHEJxVOf2W6LsB9 Shortcuts on iPad (3)
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGK8G4WXfcIGHX7ih7qyeu7Za1HeJaWOADyHBNOG1Enx
 "@
 Add-Content -Force -Path $env:ProgramData\ssh\administrators_authorized_keys -Value $publicKeys;
 & icacls.exe "$env:ProgramData\ssh\administrators_authorized_keys" /inheritance:r /grant "Administrators:F" /grant "SYSTEM:F"
