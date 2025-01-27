@@ -2,13 +2,13 @@
 
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Backup", "Restore")]
+    [ValidateSet("Backup", "Restore", "Prepare")]
     [string]$Action,
 
-    [Parameter(Mandatory = $false)]
-    [string]$DriveLetter = "D",  # Default drive letter to remove and reassign
-    [Parameter(Mandatory = $false)]
-    [string]$BackupTarget = "E:",  # Default backup target drive
+    [Parameter(Mandatory = $true)]
+    [string]$DriveLetter,  # Default drive letter to remove and reassign
+    [Parameter(Mandatory = $true)]
+    [string]$BackupTarget,  # Default backup target drive
     [Parameter(Mandatory = $false)]
     [string]$IncludeVolumes = "C:"  # Default volumes to include in the backup
 )
@@ -48,7 +48,7 @@ function Update-InstallationDate {
 function Complete-RestorationChanges {
     try {
         # Re-attach the drive letter
-        $partition = Get-Partition | Where-Object { $_.DriveLetter -eq $null -and $_.GptType -ne $null }
+        $partition = Get-Partition | Where-Object { $null -eq $_.DriveLetter -and $null -ne $_.GptType }
         if ($partition) {
             Set-Partition -DiskNumber $partition.DiskNumber -PartitionNumber $partition.PartitionNumber -NewDriveLetter $DriveLetter -ErrorAction Stop
             Write-Host "Drive letter $DriveLetter reattached to partition."
@@ -71,7 +71,13 @@ function Complete-RestorationChanges {
 }
 
 function Prepare-ForBackup {
+    
     try {
+
+        if($DriveLetter.Contains(":")){
+            $DriveLetter = $DriveLetter.Replace(":", "")
+        }
+        
         # Create the ImageRecovery directory and copy the script
         New-Item C:\ImageRecovery -ItemType Directory -Force -ErrorAction Stop
         Copy-Item -Path "$PSScriptRoot\BackupAndRestore.ps1" -Destination C:\ImageRecovery -Force -ErrorAction Stop
@@ -86,49 +92,8 @@ function Prepare-ForBackup {
             return
         }
 
-        # Define the script block for the first reboot (backup)
-        $firstRebootScript = {
-            param($BackupTarget, $IncludeVolumes)
+        Write-Host "Now rebooting machine to prepare it for backup, please log back in and run the script again with Backup command."
 
-            # Start the backup process using wbadmin
-            Write-Host "Starting backup..."
-            wbadmin start backup -backupTarget:$BackupTarget -include:$IncludeVolumes -quiet
-
-            # Define the script block for the second reboot (restoration)
-            $secondRebootScript = {
-                # Import the RestoreScript.ps1
-                . C:\ImageRecovery\BackupAndRestore.ps1 -Action Restore -DriveLetter $using:DriveLetter
-
-                # Call the Complete-RestorationChanges function
-                Complete-RestorationChanges
-            }
-
-            # Encode the second reboot script block to Base64
-            $bytes2 = [System.Text.Encoding]::Unicode.GetBytes($secondRebootScript.ToString())
-            $encodedCommand2 = [Convert]::ToBase64String($bytes2)
-
-            # Build the command string with the encoded script
-            $commandString2 = "powershell.exe -executionpolicy bypass -encodedcommand $encodedCommand2"
-
-            # Add the command to the RunOnce registry key
-            Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce' -Name 'SecondRebootScript' -Value $commandString2 -ErrorAction Stop
-
-            # Reboot the system after backup
-            Write-Host "Backup completed. System will reboot to complete restoration."
-            Restart-Computer -Force
-        }
-
-        # Encode the first reboot script block to Base64
-        $bytes1 = [System.Text.Encoding]::Unicode.GetBytes($firstRebootScript.ToString())
-        $encodedCommand1 = [Convert]::ToBase64String($bytes1)
-
-        # Build the command string with the encoded script and parameters
-        $commandString1 = "powershell.exe -executionpolicy bypass -encodedcommand $encodedCommand1 -argumentlist '$($BackupTarget)', '$($IncludeVolumes)'"
-
-        # Add the command to the RunOnce registry key
-        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce' -Name 'FirstRebootScript' -Value $commandString1 -ErrorAction Stop
-
-        Write-Host "Preparation complete. System will reboot to start backup."
         Restart-Computer -Force
     }
     catch {
